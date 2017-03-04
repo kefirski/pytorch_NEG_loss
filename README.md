@@ -22,11 +22,5 @@
         optimizer.step()
     
     word_embeddings = neg_loss.input_embeddings()
-
-
         
-        
-    
-
-
 ```
