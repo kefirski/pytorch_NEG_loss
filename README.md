@@ -7,20 +7,22 @@
 ## Usage
 
 ```python
-    neg_loss = NEG_loss(num_classes, embedding_size)
+neg_loss = NEG_loss(num_classes, embedding_size)
     
-    optimizer = SGD(neg_loss.parameters(), 0.1)
+optimizer = SGD(neg_loss.parameters(), 0.1)
     
-    for i in range(num_iterations):
-        # input and target are [batch_size] shaped tensors of Long type
-        input, target = next_batch(batch_size)
+for i in range(num_iterations):
+    ''' 
+    input is [batch_size] shaped tensors of Long type
+    while target has shape of [batch_size, window_size]
+    '''
+    input, target = next_batch(batch_size)
         
-        loss = neg_loss(input, target, num_sample).mean()
+    loss = neg_loss(input, target, num_sample)
     
-        optimizer.zero_grad()
-        loss.backward()
-        optimizer.step()
+    optimizer.zero_grad()
+    loss.backward()
+    optimizer.step()
     
-    word_embeddings = neg_loss.input_embeddings()
-        
+word_embeddings = neg_loss.input_embeddings()        
 ```
