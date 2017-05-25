@@ -38,7 +38,7 @@ class NEG_loss(nn.Module):
         """
         draws a sample from classes based on weights
         """
-        draw = choice(range(self.num_classes, n_samples, p=self.weights))
+        draw = choice(self.num_classes, n_samples, p=self.weights)
         return np.array(draw)
 
     def forward(self, input_labes, out_labels, num_sampled):
@@ -60,7 +60,7 @@ class NEG_loss(nn.Module):
 
         if self.weights is not None:
             # SUBSAMPLE
-            noise_sample_count = batch_size * window_size * num_sampled)
+            noise_sample_count = batch_size * window_size * num_sampled
             draw = self.subsample(noise_sample_count)
             draw.resize((batch_size * window_size, num_sampled))
             noise = Variable(torch.from_numpy(draw))
