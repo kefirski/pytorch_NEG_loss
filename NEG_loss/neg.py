@@ -2,10 +2,11 @@ import torch as t
 import torch.nn as nn
 from torch.autograd import Variable
 from torch.nn import Parameter
-from numpy.random import choice
+import numpy as np
+
 
 class NEG_loss(nn.Module):
-    def __init__(self, num_classes, embed_size, weights = None):
+    def __init__(self, num_classes, embed_size, weights=None):
         """
         :param num_classes: An int. The number of possible classes.
         :param embed_size: An int. EmbeddingLockup size
@@ -26,19 +27,18 @@ class NEG_loss(nn.Module):
         self.in_embed = nn.Embedding(self.num_classes, self.embed_size)
         self.in_embed.weight = Parameter(t.FloatTensor(self.num_classes, self.embed_size).uniform_(-1, 1))
 
-        # FOR SUBSAMPLING
         self.weights = weights
         if self.weights is not None:
             assert min(self.weights) >= 0, "Each weight should be >= 0"
-            # NORMALISING
+
             sum_weights = sum(self.weights)
-            self.weights = [ w / sum_weights for w in self.weights ]
+            self.weights = [w / sum_weights for w in self.weights]
 
     def subsample(self, n_samples):
         """
         draws a sample from classes based on weights
         """
-        draw = choice(self.num_classes, n_samples, p=self.weights)
+        draw = np.random.choice(self.num_classes, n_samples, p=self.weights)
         return np.array(draw)
 
     def forward(self, input_labes, out_labels, num_sampled):
@@ -56,18 +56,16 @@ class NEG_loss(nn.Module):
         [batch_size, window_size] = out_labels.size()
 
         input = self.in_embed(input_labes.repeat(1, window_size).contiguous().view(-1))
-        output = self.out_embed(out_labels.view(-1))
+        output = self.out_embed(out_labels.contiguous().view(-1))
 
         if self.weights is not None:
-            # SUBSAMPLE
             noise_sample_count = batch_size * window_size * num_sampled
             draw = self.subsample(noise_sample_count)
-            draw.resize((batch_size * window_size, num_sampled))
-            noise = Variable(torch.from_numpy(draw))
+            draw.resize(batch_size * window_size, num_sampled)
+            noise = Variable(t.from_numpy(draw))
         else:
-            # UNIFORMLY DISTRIBUTED SAMPLING
-            noise = Variable(t.Tensor(batch_size * window_size,
-                num_sampled).uniform_(0, self.num_classes - 1).long())
+            noise = Variable(t.Tensor(batch_size * window_size, num_sampled).
+                             uniform_(0, self.num_classes - 1).long())
 
         if use_cuda:
             noise = noise.cuda()
