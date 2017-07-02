@@ -33,11 +33,11 @@ class NEG_loss(nn.Module):
 
             self.weights = Variable(t.from_numpy(weights)).float()
 
-    def subsample(self, n_samples):
+    def sample(self, num_sample):
         """
         draws a sample from classes based on weights
         """
-        return t.multinomial(self.weights, batch_size * window_size, num_sampled)
+        return t.multinomial(self.weights, batch_size * window_size * num_sample, True)
 
     def forward(self, input_labes, out_labels, num_sampled):
         """
@@ -58,7 +58,7 @@ class NEG_loss(nn.Module):
 
         if self.weights is not None:
             noise_sample_count = batch_size * window_size * num_sampled
-            draw = self.subsample(noise_sample_count)
+            draw = self.sample(noise_sample_count)
             noise = draw.view(batch_size * window_size, num_sampled)
         else:
             noise = Variable(t.Tensor(batch_size * window_size, num_sampled).
