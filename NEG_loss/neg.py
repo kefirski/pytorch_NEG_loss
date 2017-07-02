@@ -21,10 +21,10 @@ class NEG_loss(nn.Module):
         self.num_classes = num_classes
         self.embed_size = embed_size
 
-        self.out_embed = nn.Embedding(self.num_classes, self.embed_size)
+        self.out_embed = nn.Embedding(self.num_classes, self.embed_size, sparse=True)
         self.out_embed.weight = Parameter(t.FloatTensor(self.num_classes, self.embed_size).uniform_(-1, 1))
 
-        self.in_embed = nn.Embedding(self.num_classes, self.embed_size)
+        self.in_embed = nn.Embedding(self.num_classes, self.embed_size, sparse=True)
         self.in_embed.weight = Parameter(t.FloatTensor(self.num_classes, self.embed_size).uniform_(-1, 1))
 
         self.weights = weights
