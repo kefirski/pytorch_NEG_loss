@@ -37,7 +37,7 @@ class NEG_loss(nn.Module):
         """
         draws a sample from classes based on weights
         """
-        return t.multinomial(self.weights, batch_size * window_size * num_sample, True)
+        return t.multinomial(self.weights, num_sample, True)
 
     def forward(self, input_labes, out_labels, num_sampled):
         """
